@@ -2,6 +2,10 @@
 Basis for AppLauncher and Randomizer by ooflorent at https://github.com/ooflorent/js13k-boilerplate
 */
 
+function linearInterpolation (from, to, currentTime, intervalLength) {
+  return ((to - from) * (currentTime / intervalLength)) + from;
+}
+
 var Debug = {
   log: function (msg) {
     //console.log (msg);
@@ -71,106 +75,110 @@ var AppLauncher = function (canvas) {
   };
 }
 
-var Randomizer = function (seed) {
+var Randomizer = (function () {
+  var _seed = 0;
 
   function random () {
-    var x = Math.sin (0.8765111159592828 + seed++) * 1e4
+    var x = Math.sin (0.8765111159592828 + _seed++) * 1e4
     return x - Math.floor (x)
   }
 
-  var rng = {
-    /**
-     * Return an integer within [0, max).
-     *
-     * @param  {int} [max]
-     * @return {int}
-     * @api public
-     */
-    int: function (max) {
-      return random () * (max || 0xfffffff) | 0;
-    },
+  var RandomizerClass = function (seed) {
+    _seed = seed;
+  }
 
-    /**
-     * Return a float within [0.0, 1.0).
-     *
-     * @return {float}
-     * @api public
-     */
-    float: function () {
-      return random ();
-    },
-
-    /**
-     * Return a boolean.
-     *
-     * @return {Boolean}
-     * @api public
-     */
-    bool: function () {
-      return random () > 0.5;
-    },
-
-    /**
-     * Return an integer within [min, max).
-     *
-     * @param  {int} min
-     * @param  {int} max
-     * @return {int}
-     * @api public
-     */
-    range: function (min, max) {
-      return rng.int (max - min) + min;
-    },
-
-    /**
-     * Pick an element from the source.
-     *
-     * @param  {mixed[]} source
-     * @return {mixed}
-     * @api public
-     */
-    pick: function (source) {
-      return source[rng.range (0, source.length)];
-    }
+  /**
+   * Return an integer within [0, max).
+   *
+   * @param  {int} [max]
+   * @return {int}
+   * @api public
+   */
+  RandomizerClass.prototype.int = function (max) {
+    return random () * (max || 0xfffffff) | 0;
   };
 
-  return rng;
-};
+  /**
+   * Return a float within [0.0, 1.0).
+   *
+   * @return {float}
+   * @api public
+   */
+  RandomizerClass.prototype.float = function () {
+    return random ();
+  };
 
-var Superformular = function (m, n1, n2, n3, a, b) {
-  if (!a || a <= 0) a = 1;
-  if (!b || b <= 0) b = 1;
+  /**
+   * Return a boolean.
+   *
+   * @return {Boolean}
+   * @api public
+   */
+  RandomizerClass.prototype.bool = function () {
+    return random () > 0.5;
+  };
 
-  return {
-    m: m,
-    n1: n1,
-    n2: n2,
-    n3: n3,
-    a: a, // stretch in -x
-    b: b, // stretch in +x
-    calculate_point: function (angle) {
-      var rpart = (this.m * angle) / 4;
-      var apart = Math.abs (Math.cos (rpart) / this.a);
-      var bpart = Math.abs (Math.sin (rpart) / this.b);
+  /**
+   * Return an integer within [min, max).
+   *
+   * @param  {int} min
+   * @param  {int} max
+   * @return {int}
+   * @api public
+   */
+  RandomizerClass.prototype.range = function (min, max) {
+    return this.int (max - min) + min;
+  };
 
-      var r = Math.pow (
-        Math.pow (apart, this.n2) + Math.pow (bpart, this.n3),
-        -1 / this.n1
-      )
+  /**
+   * Pick an element from the source.
+   *
+   * @param  {mixed[]} source
+   * @return {mixed}
+   * @api public
+   */
+  RandomizerClass.prototype.pick = function (source) {
+    return source[this.range (0, source.length)];
+  };
 
-      return {
-        x: Math.cos (angle) * r,
-        y: Math.sin (angle) * r
-      };
-    },
+  return RandomizerClass;
+}) ();
+
+
+
+var Superformular = (function () {
+  var SuperformularClass = function (m, n1, n2, n3, a, b) {
+    if (!a || a <= 0) a = 1;
+    if (!b || b <= 0) b = 1;
+
+    this.m = m;
+    this.n1 = n1;
+    this.n2 = n2;
+    this.n3 = n3;
+    this.a = a; // stretch in -x
+    this.b = b; // stretch in +x
   }
-};
 
-function linearInterpolation (from, to, currentTime, intervalLength) {
-  return ((to - from) * (currentTime / intervalLength)) + from;
-}
+  SuperformularClass.prototype.calculate_point = function (angle) {
+    var rpart = (this.m * angle) / 4;
+    var apart = Math.abs (Math.cos (rpart) / this.a);
+    var bpart = Math.abs (Math.sin (rpart) / this.b);
 
-var Color = function (r, g, b) {
+    var r = Math.pow (
+      Math.pow (apart, this.n2) + Math.pow (bpart, this.n3),
+      -1 / this.n1
+    )
+
+    return {
+      x: Math.cos (angle) * r,
+      y: Math.sin (angle) * r
+    };
+  };
+
+  return SuperformularClass;
+}) ();
+
+var Color = (function () {
   function componentToHexString (comp) {
     var str = comp.toString (16);
 
@@ -179,28 +187,41 @@ var Color = function (r, g, b) {
       : str
       ;
   }
-  return {
-    r: r || 0,
-    g: g || 0,
-    b: b || 0,
 
-    toHex: function () {
-      return "#"
-        + componentToHexString (this.r)
-        + componentToHexString (this.g)
-        + componentToHexString (this.b)
-        ;
-    },
+  function checkComponent (x) {
+    var c = x || 0;
 
-    interpolate: function (other, currentTime, intervalLength) {
-      return Color (
-        Math.floor (linearInterpolation (this.r, other.r, currentTime, intervalLength)),
-        Math.floor (linearInterpolation (this.g, other.g, currentTime, intervalLength)),
-        Math.floor (linearInterpolation (this.b, other.b, currentTime, intervalLength))
-      );
-    }
+    if (255 < c) return 255;
+    if (0 > c) return 0;
+
+    return c;
   }
-}
+
+  var Color = function (r, g, b) {
+    this.r = checkComponent (r);
+    this.g = checkComponent (g);
+    this.b = checkComponent (b);
+  }
+
+  Color.prototype.toHex = function () {
+    return "#"
+      + componentToHexString (this.r)
+      + componentToHexString (this.g)
+      + componentToHexString (this.b)
+      ;
+  };
+
+  Color.prototype.interpolate = function (other, currentTime, intervalLength) {
+    return new Color (
+      Math.floor (linearInterpolation (this.r, other.r, currentTime, intervalLength)),
+      Math.floor (linearInterpolation (this.g, other.g, currentTime, intervalLength)),
+      Math.floor (linearInterpolation (this.b, other.b, currentTime, intervalLength))
+    );
+  };
+
+  return Color;
+
+}) ();
 
 var SuperformularCollection = function (transitionTime) {
   var collection = [];
@@ -208,7 +229,7 @@ var SuperformularCollection = function (transitionTime) {
   var elapsedTime = 0;
   var vertices = [];
   var res = 360;
-  var fillColor = Color (0, 0, 0);
+  var fillColor = new Color (0, 0, 0);
   var zoom = 150;
 
   return {
@@ -280,11 +301,11 @@ var SuperformularCollection = function (transitionTime) {
 
 
 var Game = function () {
-  var rand = Randomizer (1337);
+  var rand = new Randomizer (1337);
   var sfc = SuperformularCollection (4.2);
 
   function pickColor () {
-    return Color (
+    return new Color (
       rand.range (0, 256),
       rand.range (0, 256),
       rand.range (0, 256)
@@ -292,9 +313,9 @@ var Game = function () {
   }
 
   var shapeValues = [
-    /*[[3, 2, 8, 3], Color (128, 0, 0)],
-    [[10, 10, 8, 7], Color (0, 128, 0)],
-    [[23, 10, 8, 7], Color (0, 0, 128)],
+    /*[[3, 2, 8, 3], new Color (128, 0, 0)],
+    [[10, 10, 8, 7], new Color (0, 128, 0)],
+    [[23, 10, 8, 7], new Color (0, 0, 128)],
     [[1, 1, 1, 1], pickColor ()],
     [[23, 23, 23, 23], pickColor ()], */
     [[3, 5, 18, 18], pickColor ()],
@@ -330,7 +351,7 @@ var Game = function () {
     var n3 = entry[0][3];
     var color = entry[1];
 
-    sfc.add (Superformular (m, n1, n2, n3), color);
+    sfc.add (new Superformular (m, n1, n2, n3), color);
   });
 
   return {

@@ -367,6 +367,8 @@ var Game = function () {
 };
 
 var canvas = document.querySelector ('#game');
-var launcher = AppLauncher (canvas);
+canvas.width = 1920;
+canvas.height = 1080;
 
+var launcher = AppLauncher (canvas);
 launcher.start (Game ());

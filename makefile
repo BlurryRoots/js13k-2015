@@ -18,5 +18,5 @@ copy:
 build: setup
 	# $(browserify_cmd) src/main.js -t brfs -o build/app.js
 	$(browserify_cmd) src/main.js -o build/app.js
-	$(uglifyjs_cmd) -c -o build/app.compressed.js build/app.js
+	$(uglifyjs_cmd) -m -c -o build/app.compressed.js build/app.js
 	node compile-index.js

@@ -1,4 +1,6 @@
 module.exports = (function () {
+  var Color = require ('./color');
+
   var SuperformularClass = function (m, n1, n2, n3, a, b) {
     if (!a || a <= 0) a = 1;
     if (!b || b <= 0) b = 1;

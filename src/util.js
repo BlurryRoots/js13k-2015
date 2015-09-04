@@ -1,9 +1,10 @@
 module.exports = (function () {
 
-	return {
-		linearInterpolation: function (from, to, currentTime, intervalLength) {
-		  return ((to - from) * (currentTime / intervalLength)) + from;
-		},
-	}
+	var Util = {}
+	Util.linearInterpolation = function (from, to, currentTime, intervalLength) {
+	  return ((to - from) * (currentTime / intervalLength)) + from;
+	};
+
+	return Util;
 
 }) ();

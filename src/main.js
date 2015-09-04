@@ -5,6 +5,8 @@ var Util = require ('./util');
 var Randomizer = require ('./randomizer');
 var Superformular = require ('./superformular');
 var Color = require ('./color');
+var AppLauncher = require ('./applauncher');
+var SuperformularCollection = require ('./superformularcollection');
 
 var Debug = {
   log: function (msg) {
@@ -14,147 +16,9 @@ var Debug = {
   }
 }
 
-var AppLauncher = function (canvas) {
-  // Holds last iteration timestamp.
-  var time = 0;
-  var ctx = canvas.getContext ('2d');
-
-  /**
-   * Calls `fn` on next frame.
-   *
-   * @param  {Function} fn The function
-   * @return {int} The request ID
-   * @api private
-   */
-  function callNextFrame (fn) {
-    var onAnimationFrame = function () {
-      var now = Date.now ();
-      var elapsed = now - time;
-
-      if (elapsed > 999) {
-        elapsed = 1 / 60;
-      }
-      else {
-        elapsed /= 1000;
-      }
-
-      time = now;
-      fn (elapsed);
-    };
-
-    return window.requestAnimationFrame (onAnimationFrame);
-  }
-
-  return {
-    /**
-     * Calls `fn` on every frame with `elapsed` set to the elapsed
-     * time in milliseconds.
-     *
-     * @param  {Function} fn The function
-     * @return {int} The request ID
-     * @api public
-     */
-    start: function (game) {
-      return callNextFrame (function tick (elapsed) {
-        game.update (elapsed);
-        game.render (ctx);
-        // call again later
-        callNextFrame (tick);
-      });
-    },
-
-    /**
-     * Cancels the specified animation frame request.
-     *
-     * @param {int} id The request ID
-     * @api public
-     */
-    stop: function (id) {
-      window.cancelAnimationFrame (id);
-    }
-  };
-}
-
-var SuperformularCollection = function (transitionTime) {
-  var collection = [];
-  var currentFormularIndex = 0;
-  var elapsedTime = 0;
-  var vertices = [];
-  var res = 360;
-  var fillColor = new Color (0, 0, 0);
-  var zoom = 150;
-
-  return {
-    add: function (formular, color) {
-      collection.push ({
-        formular: formular,
-        color: color,
-      });
-    },
-    each: function (callback) {
-      collection.forEach (function (v) {
-        callback (v.formular, v.color);
-      });
-    },
-    update: function (dt) {
-      elapsedTime += dt;
-
-      if (elapsedTime > transitionTime) {
-        elapsedTime = 0;
-
-        var nextIndex = currentFormularIndex + 1;
-        currentFormularIndex = nextIndex >= collection.length
-          ? 0
-          : nextIndex
-          ;
-      }
-
-      var tansitionFormularIndex = currentFormularIndex + 1;
-      if (tansitionFormularIndex >= collection.length) {
-        tansitionFormularIndex = 0;
-      }
-
-      var sf1 = collection[currentFormularIndex].formular;
-      var sf2 = collection[tansitionFormularIndex].formular;
-
-      vertices = [];
-      for (var i = 1; i <= res; ++i) {
-        var radians = (i / res) * (2 * Math.PI);
-        var point1 = sf1.calculate_point (radians, 1);
-        var point2 = sf2.calculate_point (radians, 1);
-
-        vertices.push ({
-          x: Util.linearInterpolation (point1.x, point2.x, elapsedTime, transitionTime),
-          y: Util.linearInterpolation (point1.y, point2.y, elapsedTime, transitionTime),
-        });
-      }
-
-      var sf1color = collection[currentFormularIndex].color;
-      var sf2color = collection[tansitionFormularIndex].color;
-      fillColor = sf1color.interpolate (sf2color, elapsedTime, transitionTime);
-    },
-    draw: function (ctx) {
-      ctx.save ();
-      ctx.translate (canvas.width / 2, canvas.height / 2);
-      ctx.scale (zoom, zoom);
-      ctx.beginPath ();
-      vertices.forEach (function (v) {
-        ctx.lineTo (v.x, v.y);
-      });
-      ctx.closePath ();
-      ctx.restore ();
-
-      ctx.fillStyle = fillColor.toHex ();
-      ctx.fill ();
-    },
-  }
-}
-
-
-
 var Game = function () {
   var rand = new Randomizer (1337);
-  var sfc = SuperformularCollection (4.2);
+  var sfc = new SuperformularCollection (4.2);
 
   function pickColor () {
     return new Color (
@@ -222,5 +86,5 @@ var canvas = document.querySelector ('#game');
 canvas.width = 1920;
 canvas.height = 1080;
 
-var launcher = AppLauncher (canvas);
+var launcher = new AppLauncher (canvas);
 launcher.start (Game ());

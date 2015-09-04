@@ -6,7 +6,9 @@
   "devDependencies": {
     "brfs": "^1.4.1",
     "browserify": "^11.0.1",
+    "commander": "^2.8.1",
     "handlebars": "^4.0.1",
+    "minify": "^1.4.20",
     "uglifyjs": "^2.4.10"
   },
   "scripts": {

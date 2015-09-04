@@ -1,12 +1,42 @@
-var fs = require ('fs');
-var hbs = require ('handlebars');
+#!/usr/bin/env node
 
-var source = fs.readFileSync ('src/index.html').toString ();
-var template = hbs.compile (source);
+function inlineScriptAndCss (app, css, outfile) {
+  var fs = require ('fs');
+  var hbs = require ('handlebars');
 
-var data = {
-	"app": fs.readFileSync ('build/app.compressed.js').toString (),
-	"css": fs.readFileSync ('resources/game.css').toString ()
-};
-var result = template (data);
-fs.writeFileSync ('build/index.html', result.toString ());
+  var source = fs.readFileSync ('src/index.html').toString ();
+  var template = hbs.compile (source);
+
+  var data = {
+    "app": fs.readFileSync (app).toString (),
+    "css": fs.readFileSync (css).toString ()
+  };
+
+  var result = template (data);
+  var str = result.toString ();
+
+  fs.writeFileSync (outfile, str);
+}
+
+function main (isDebug) {
+  console.log ('Building ' + (isDebug ? 'debug' : 'release'));
+  var app = 'build/' +
+    ((! isDebug) ? 'app.compressed.js' : 'app.js')
+    ;
+  var css = 'resources/game.css';
+  var outfile = 'build/index.html';
+
+  inlineScriptAndCss (app, css, outfile);
+
+  return 0;
+}
+
+var program = require('commander');
+
+program
+  .option ('-d, --debug [true]', 'Debug mode (on by default)', true)
+  .option ('-r, --release [false]', 'Release mode (overrides -d)', false)
+  .parse (process.argv)
+  ;
+
+return main (program.debug && ! program.release);

@@ -6,7 +6,8 @@
   "devDependencies": {
     "brfs": "^1.4.1",
     "browserify": "^11.0.1",
-    "handlebars": "^4.0.1"
+    "handlebars": "^4.0.1",
+    "uglifyjs": "^2.4.10"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

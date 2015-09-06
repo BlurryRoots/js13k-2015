@@ -36,7 +36,7 @@ module.exports = (function () {
   }
 
   Vector2.prototype.magnitude2 = function(a) {
-    return this.r * this.r + this.i * this.i;
+    return this.x * this.x + this.y * this.y;
   }
 
   Vector2.prototype.dot = function (b) {
@@ -44,7 +44,8 @@ module.exports = (function () {
   };
 
   Vector2.prototype.angle = function (b) {
-    return this.dot (b) / (this.magnitude () * b.magnitude ());
+    var magprod = this.magnitude () * b.magnitude ();
+    return Math.acos (this.dot (b) / magprod);
   }
 
   Vector2.prototype.toString = function () {

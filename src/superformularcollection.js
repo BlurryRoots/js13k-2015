@@ -1,6 +1,7 @@
 module.exports = (function () {
   var Util = require ('./util');
   var Color = require ('./color');
+  var Vector2 = require ('./vector2');
 
   var _collection = [];
   var _currentFormularIndex = 0;
@@ -48,16 +49,26 @@ module.exports = (function () {
     var sf1 = _collection[_currentFormularIndex].formular;
     var sf2 = _collection[tansitionFormularIndex].formular;
 
+    var shapePointDistance = 10;
+    var shapePointDistance2 = shapePointDistance * shapePointDistance;
+
     _vertices = [];
     for (var i = 1; i <= _res; ++i) {
       var radians = (i / _res) * (2 * Math.PI);
+      // move point 2 shapePointDistance from point 1d
+      // can i cut the center of the shape? or do i have to
+      // get a 'bend' shape by connecting the end points ?
       var point1 = sf1.calculate_point (radians, 1);
       var point2 = sf2.calculate_point (radians, 1);
 
-      _vertices.push ({
-        x: Util.linearInterpolation (point1.x, point2.x, _elapsedTime, _transitionTime),
-        y: Util.linearInterpolation (point1.y, point2.y, _elapsedTime, _transitionTime),
-      });
+      var x = Util.linearInterpolation (
+        point1.x, point2.x, _elapsedTime, _transitionTime
+      );
+      var y = Util.linearInterpolation (
+        point1.y, point2.y, _elapsedTime, _transitionTime
+      );
+
+      _vertices.push (new Vector2 (x, y));
     }
 
     var sf1color = _collection[_currentFormularIndex].color;
@@ -76,8 +87,10 @@ module.exports = (function () {
     ctx.closePath ();
     ctx.restore ();
 
+    var fillStyleBuffer = ctx.fillStyle;
     ctx.fillStyle = _fillColor.toHex ();
     ctx.fill ();
+    ctx.fillStyle = fillStyleBuffer;
   };
 
   return SuperformularCollectionClass;

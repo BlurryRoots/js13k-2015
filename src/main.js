@@ -1,12 +1,14 @@
 /*
 Basis for AppLauncher and Randomizer by ooflorent at https://github.com/ooflorent/js13k-boilerplate
 */
+
 var Util = require ('./util');
 var Randomizer = require ('./randomizer');
 var Superformular = require ('./superformular');
 var Color = require ('./color');
 var AppLauncher = require ('./applauncher');
 var SuperformularCollection = require ('./superformularcollection');
+var Complex = require ('./fractal');
 
 var Debug = {
   log: function (msg) {
@@ -17,7 +19,7 @@ var Debug = {
 }
 
 var Game = function () {
-  var rand = new Randomizer (1337);
+  var rand = new Randomizer (Date.now ());
   var sfc = new SuperformularCollection (4.2);
 
   function pickColor () {
@@ -29,11 +31,11 @@ var Game = function () {
   }
 
   var shapeValues = [
-    /*[[3, 2, 8, 3], new Color (128, 0, 0)],
-    [[10, 10, 8, 7], new Color (0, 128, 0)],
-    [[23, 10, 8, 7], new Color (0, 0, 128)],
+    [[3, 2, 8, 3], pickColor ()],
+    [[10, 10, 8, 7], pickColor ()],
+    [[23, 10, 8, 7], pickColor ()],
     [[1, 1, 1, 1], pickColor ()],
-    [[23, 23, 23, 23], pickColor ()], */
+    [[23, 23, 23, 23], pickColor ()],
     [[3, 5, 18, 18], pickColor ()],
     [[6, 20, 7, 18], pickColor ()],
     [[4, 2, 4, 13], pickColor ()],
@@ -60,6 +62,10 @@ var Game = function () {
     [[3, 2, 5, 7], pickColor ()],
   ];
 
+  shapeValues.sort (function (a, b) {
+    return rand.pick ([-1, 0, 1]);
+  });
+
   shapeValues.forEach (function (entry) {
     var m = entry[0][0];
     var n1 = entry[0][1];
@@ -70,14 +76,31 @@ var Game = function () {
     sfc.add (new Superformular (m, n1, n2, n3), color);
   });
 
+  function roundToTwo(num) {
+    return +(Math.round(num + "e+2")  + "e-2");
+  }
+
+  var _timeRunning = 0;
+  var _frames = 0;
+
   return {
     update: function (dt) {
+      _timeRunning += dt;
+      ++_frames;
+
       sfc.update (dt);
     },
     render: function (ctx) {
-      ctx.clearRect (0, 0, canvas.width, canvas.height);
+      var canvas = ctx.canvas;
 
+      ctx.clearRect (0, 0, canvas.width, canvas.height);
       sfc.draw (ctx);
+
+      ctx.fillStyle = new Color (0, 0, 0).toHex ();
+      var text = 't in s: ' + roundToTwo (_timeRunning).toString ();
+      ctx.fillText (text, 10, 50);
+      text = '@ ' + roundToTwo (_frames / _timeRunning).toString () + ' fps';
+      ctx.fillText (text, 10, 50 + 48 + 10);
     },
   }
 };
@@ -85,6 +108,7 @@ var Game = function () {
 var canvas = document.querySelector ('#game');
 canvas.width = 1920;
 canvas.height = 1080;
+canvas.getContext ('2d').font = "48px serif";
 
 var launcher = new AppLauncher (canvas);
 launcher.start (Game ());

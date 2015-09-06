@@ -1,5 +1,7 @@
 module.exports = (function () {
+
   var Color = require ('./color');
+  var Vector2 = require ('./vector2');
 
   var SuperformularClass = function (m, n1, n2, n3, a, b) {
     if (!a || a <= 0) a = 1;
@@ -23,11 +25,12 @@ module.exports = (function () {
       -1 / this.n1
     )
 
-    return {
-      x: Math.cos (angle) * r,
-      y: Math.sin (angle) * r
-    };
+    var x = Math.cos (angle) * r;
+    var y = Math.sin (angle) * r;
+
+    return new Vector2 (x, y);
   };
 
   return SuperformularClass;
+
 }) ();

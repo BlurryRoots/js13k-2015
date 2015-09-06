@@ -8,7 +8,6 @@ var Superformular = require ('./superformular');
 var Color = require ('./color');
 var AppLauncher = require ('./applauncher');
 var SuperformularCollection = require ('./superformularcollection');
-var Complex = require ('./fractal');
 
 var Debug = {
   log: function (msg) {

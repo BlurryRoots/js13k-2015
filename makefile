@@ -6,6 +6,10 @@ minify_cmd="node_modules/minify/bin/minify.js"
 
 all: clean build-debug
 
+build: build-debug
+
+run: run-debug
+
 clean:
 	rm -rf build/*
 

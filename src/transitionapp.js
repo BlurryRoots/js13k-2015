@@ -12,6 +12,7 @@ module.exports = (function () {
   var _sfc = new SuperformularCollection (4.2);
   var _timeRunning = 0;
   var _frames = 0;
+  var _paused = false;
 
   function TransitionApp () {
     _randomizer = new Randomizer (Date.now ());
@@ -46,14 +47,28 @@ module.exports = (function () {
     });
   }
 
-  TransitionApp.prototype.update = function (dt) {
+  TransitionApp.prototype.onclick = function (e) {
+    if (1 == e.buttons) {
+      _paused = ! _paused;
+    }
+  }
+
+  TransitionApp.prototype.onkeyup = function (e) {
+    console.log (e);
+  }
+
+  TransitionApp.prototype.onupdate = function (dt) {
+    if (_paused) {
+      return;
+    }
+
     _timeRunning += dt;
     ++_frames;
 
     _sfc.update (dt);
   };
 
-  TransitionApp.prototype.render = function (ctx) {
+  TransitionApp.prototype.onrender = function (ctx) {
     var canvas = ctx.canvas;
 
     ctx.clearRect (0, 0, canvas.width, canvas.height);

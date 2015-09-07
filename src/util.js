@@ -19,6 +19,11 @@ module.exports = (function () {
     return +(Math.round (num + "e+2") + "e-2");
   };
 
+  Util.fontHeight = function (canvasContext) {
+    // good enough i guess (only really works when font is given in pixels!)
+    return parseInt (canvasContext.font);
+  };
+
   Util.typeof = function (obj) {
     // taken from php.js' get_class
     /*

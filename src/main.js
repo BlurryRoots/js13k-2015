@@ -1,10 +1,14 @@
 var AppLauncher = require ('./applauncher');
-var TransitionApp = require ('./transitionapp');
+var Game = require ('./game');
+var Util = require ('./util');
 
 var canvas = document.querySelector ('#game');
+var ctx = canvas.getContext ('2d');
 canvas.width = 1920;
 canvas.height = 1080;
-canvas.getContext ('2d').font = "48px serif";
+ctx.font = '48px serif';
+ctx.textBaseline = 'bottom';
 
 var launcher = new AppLauncher (canvas);
-launcher.start (new TransitionApp ());
+var game = new Game ();
+launcher.start (game);

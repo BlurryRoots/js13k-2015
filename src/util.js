@@ -12,7 +12,12 @@ module.exports = (function () {
 
   Util.radToDeg = function (rad) {
     return (rad / (2 * Math.PI)) * 360;
-  }
+  };
+
+  Util.roundToTwo = function (num) {
+    // THIS IS SUCH A MESSY HACK!
+    return +(Math.round (num + "e+2") + "e-2");
+  };
 
   Util.typeof = function (obj) {
     // taken from php.js' get_class

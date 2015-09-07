@@ -1,3 +1,7 @@
+/*
+Basis for AppLauncher and Randomizer by ooflorent at https://github.com/ooflorent/js13k-boilerplate
+*/
+
 module.exports = (function () {
   // Holds last iteration timestamp.
   var _time;

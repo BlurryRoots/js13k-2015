@@ -6,6 +6,7 @@ module.exports = (function () {
   // Holds last iteration timestamp.
   var _time;
   var _ctx;
+  var _options;
 
   /**
    * Calls `fn` on next frame.
@@ -70,9 +71,12 @@ module.exports = (function () {
    * @param {domElement} The canvas element
    * @api public
    */
-  var AppLauncherClass = function (canvas) {
+  var AppLauncherClass = function (canvas, options) {
     _time = 0;
     _ctx = canvas.getContext ('2d');
+    _options = options || {
+      aspect: 1.7777777777777777
+    };
   }
 
   /**
@@ -86,6 +90,11 @@ module.exports = (function () {
   AppLauncherClass.prototype.start = function (game) {
     _registerMouseHandlers (_ctx.canvas, game);
     _registerKeyHandlers (document, game);
+
+    /*document.body.onresize = function (e) {
+      _ctx.canvas.width = _ctx.canvas.clientWidth;
+      _ctx.canvas.height = _ctx.canvas.width / _options.aspect;
+    };*/
 
     return _callNextFrame (function tick (elapsed) {
       game.onupdate (elapsed);

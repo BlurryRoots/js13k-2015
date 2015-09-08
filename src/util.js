@@ -1,5 +1,4 @@
 module.exports = (function () {
-
   var Util = {}
 
   Util.linearInterpolation = function (from, to, currentTime, intervalLength) {
@@ -22,6 +21,18 @@ module.exports = (function () {
   Util.fontHeight = function (canvasContext) {
     // good enough i guess (only really works when font is given in pixels!)
     return parseInt (canvasContext.font);
+  };
+
+  Util.clientToCanvasPosition = function (canvas, clientPosition) {
+    var scale = new Vector2 (
+      canvas.width / canvas.clientWidth,
+      canvas.height / canvas.clientHeight
+    );
+
+    var x = (clientPosition.x + canvas.offsetLeft) * scale.x;
+    var y = (clientPosition.y + canvas.offsetTop) * scale.y;
+
+    return new Vector2 (x, y);
   };
 
   Util.typeof = function (obj) {

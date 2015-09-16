@@ -1,6 +1,7 @@
 module.exports = (function () {
-  Util = require ('./util');
-  Vector2 = require ('./vector2');
+  var Util = require ('./util');
+  var Vector2 = require ('./vector2');
+  var Superformular = require ('./superformular');
 
   var _text;
   var _clickPos;

@@ -34,8 +34,41 @@ module.exports = (function () {
     return window.requestAnimationFrame (onAnimationFrame);
   }
 
+  function _hasHandler (game, handlerName) {
+    return 'function' === typeof game[handlerName];
+  }
+
+  function _registerMouseWheelHandler (element, handler) {
+    var handleEventFix = function (e) {
+      // fix event not present
+      e = e || window.event;
+
+      // normalize the value between vendors
+      if (e.wheelDelta) {
+        e.wheelValue = -1 * e.wheelDelta / 40;
+      }
+      else {
+        e.wheelValue = e.detail;
+      }
+
+      handler (e);
+    }
+
+    // from post http://www.sitepoint.com/html5-javascript-mouse-wheel/
+    if (element.addEventListener) {
+      // IE9, Chrome, Safari, Opera
+      element.addEventListener ("mousewheel", handleEventFix, false);
+      // Firefox
+      element.addEventListener ("DOMMouseScroll", handleEventFix, false);
+    }
+    // IE 6/7/8
+    else {
+      element.attachEvent ("onmousewheel", handleEventFix);
+    }
+  }
+
   function _register (element, game, handlerName) {
-    if ('function' === typeof game[handlerName]) {
+    if (_hasHandler (game, handlerName)) {
       console.log ('registering ' + handlerName);
       // fix element attached to window
       element[handlerName] = function (e) {
@@ -55,6 +88,11 @@ module.exports = (function () {
     _register (element, game, 'onmousemove');
     // onmouseup   The mouse/pointing device was released after being pressed down.
     _register (element, game, 'onmouseup');
+
+    if (_hasHandler (game, 'onmousewheel')) {
+      // onmousewheel   Invoked when the mouse wheel is being rotated.
+      _registerMouseWheelHandler (element, game['onmousewheel']);
+    }
   }
 
   function _registerKeyHandlers (element, game) {

@@ -11,7 +11,8 @@ module.exports = (function () {
   }
 
   var RandomizerClass = function (seed) {
-    _seed = seed;
+    // either set the given seed or initialize with the current date
+    _seed = seed || Date.now ();
   }
 
   /**
@@ -55,6 +56,18 @@ module.exports = (function () {
    */
   RandomizerClass.prototype.range = function (min, max) {
     return this.int (max - min) + min;
+  };
+
+  /**
+   * Return a float within [min, max).
+   *
+   * @param  {int} min
+   * @param  {int} max
+   * @return {int}
+   * @api public
+   */
+  RandomizerClass.prototype.rangef = function (min, max) {
+    return (this.float () * (max - min)) + min;
   };
 
   /**

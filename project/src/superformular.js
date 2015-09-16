@@ -31,6 +31,21 @@ module.exports = (function () {
     return new Vector2 (x, y);
   };
 
+  SuperformularClass.prototype.calculate_vertices = function (resolution) {
+    resolution = resolution || 360;
+
+    var vertices = [];
+    for (var i = 1; i <= resolution; ++i) {
+      var radians = (i / resolution) * (2 * Math.PI);
+
+      var vertex = this.calculate_point (radians, 1);
+
+      vertices.push (vertex);
+    }
+
+    return vertices;
+  }
+
   return SuperformularClass;
 
 }) ();

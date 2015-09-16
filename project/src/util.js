@@ -1,4 +1,6 @@
 module.exports = (function () {
+
+  var Vector2 = require ('./vector2');
   var Util = {}
 
   Util.linearInterpolation = function (from, to, currentTime, intervalLength) {

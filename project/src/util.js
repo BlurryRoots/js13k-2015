@@ -37,6 +37,20 @@ module.exports = (function () {
     return new Vector2 (x, y);
   };
 
+  Util.hasHandler = function (obj, handlerName) {
+    return 'function' === typeof obj[handlerName];
+  }
+
+  Util.registerEventHandler = function (element, handlerName, handler) {
+    console.log ('registering ' + handlerName);
+    // fix element attached to window
+    element[handlerName] = function (e) {
+      e = e || window.event;
+      var callback = handler;
+      callback (e);
+    };
+  }
+
   Util.typeof = function (obj) {
     // taken from php.js' get_class
     /*

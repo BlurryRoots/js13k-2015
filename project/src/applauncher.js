@@ -1,8 +1,9 @@
-/*
-Basis for AppLauncher and Randomizer by ooflorent at https://github.com/ooflorent/js13k-boilerplate
+/**
+* @module AppLauncher
 */
-
 module.exports = (function () {
+  // inspired by ooflorent at https://github.com/ooflorent/js13k-boilerplate
+
   // Holds last iteration timestamp.
   var _time;
   var _ctx;
@@ -11,9 +12,11 @@ module.exports = (function () {
   /**
    * Calls `fn` on next frame.
    *
+   * @method _callNextFrame
    * @param  {Function} fn The function
    * @return {int} The request ID
-   * @api private
+   *
+   * @private
    */
   function _callNextFrame (fn) {
     var onAnimationFrame = function () {
@@ -34,8 +37,18 @@ module.exports = (function () {
     return window.requestAnimationFrame (onAnimationFrame);
   }
 
-  function _hasHandler (game, handlerName) {
-    return 'function' === typeof game[handlerName];
+  /**
+  * Checks weather obj has a specific handler.
+  *
+  * @method _hasHandler
+  * @param {Object} obj The object to check.
+  * @param {string} handlerName The name of the function to check for.
+  * @return {Boolean} True if obj has handler set.
+  *
+  * @private
+  */
+  function _hasHandler (obj, handlerName) {
+    return 'function' === typeof obj[handlerName];
   }
 
   function _registerMouseWheelHandler (element, handler) {
@@ -105,11 +118,14 @@ module.exports = (function () {
   }
 
   /**
-   * Constructor.
-   * @param {domElement} The canvas element
-   * @api public
+   * Creates a new AppLauncher
+   *
+   * @class AppLauncher
+   * @constructor
+   * @param {domElement} canvas The canvas element
+   * @param {Object} [options] Options to apply befor running an app.
    */
-  var AppLauncherClass = function (canvas, options) {
+  var AppLauncher = function (canvas, options) {
     _time = 0;
     _ctx = canvas.getContext ('2d');
     _options = options || {
@@ -121,11 +137,11 @@ module.exports = (function () {
    * Calls `fn` on every frame with `elapsed` set to the elapsed
    * time in milliseconds.
    *
+   * @method start
    * @param  {Function} fn The function
    * @return {int} The request ID
-   * @api public
    */
-  AppLauncherClass.prototype.start = function (game) {
+  AppLauncher.prototype.start = function (game) {
     _registerMouseHandlers (_ctx.canvas, game);
     _registerKeyHandlers (document, game);
 
@@ -145,12 +161,12 @@ module.exports = (function () {
   /**
    * Cancels the specified animation frame request.
    *
+   * @method stop
    * @param {int} id The request ID
-   * @api public
    */
-  AppLauncherClass.prototype.stop = function (id) {
+  AppLauncher.prototype.stop = function (id) {
     window.cancelAnimationFrame (id);
   };
 
-  return AppLauncherClass;
+  return AppLauncher;
 }) ();

@@ -5,6 +5,8 @@ module.exports = (function () {
   var Superformular = require ('./superformular');
   var Randomizer = require ('./randomizer');
   var Color = require ('./color');
+  var Handlebars = require ('handlebars');
+  var fs = require ('fs');
 
   var _text = 'what the shit?';
   var _clickPos;
@@ -32,21 +34,78 @@ module.exports = (function () {
     ctx.fillStyle = fillStyleBuffer;
   }
 
+  function _drawSuperformularParamters (sf) {
+
+  }
+
+  function supportsLocalStorage () {
+    try {
+      return 'localStorage' in window && window['localStorage'] !== null;
+    }
+    catch (e) {
+      return false;
+    }
+  }
+
   function GameClass (canvas) {
     _canvas = canvas;
     _rand = new Randomizer ();
     _zoom = 100;
 
+    if (! supportsLocalStorage ()) {
+      throw new Error ('You do not support local storage?! C\'mon!');
+    }
+
     var m = _rand.range ()
     _sf = new Superformular (
-      _rand.rangef (0.1, 10),
-      _rand.rangef (0.1, 10),
-      _rand.rangef (0.1, 10),
-      _rand.rangef (0.1, 10)
+      _rand.range (1, 100),
+      _rand.rangef (0.1, 100),
+      _rand.rangef (0.1, 100),
+      _rand.rangef (0.1, 100)
     );
 
     _gui = document.getElementById ("gui");
-    _gui.innerHTML = "<h2>m: " + _sf.m + " n1: " + _sf.n1 + " n2: " + _sf.n2 + " n3: " + _sf.n3 + "</h2>";
+    _gui.paramsTemplate = (function () {
+      var source = fs.readFileSync (__dirname + '/superformular.hbs', 'utf8');
+      var template = Handlebars.compile (source);
+      var element = document.createElement ('div');
+      element.setAttribute ('id', 'paramsTemplate');
+      Util.registerEventHandler (element, 'onmousedown', function (e) {
+        var sfParamName = e.target.parentNode.children[0].textContent;
+        console.log ('button: ' + e.button);
+        var addition = 0;
+        if (0 == e.button) {
+          addition = 1;
+        }
+        else if (1 == e.button) {
+          addition = -1;
+        }
+
+        console.log (sfParamName + " " + _sf[sfParamName]);
+        console.log ('addition: ' + addition);
+        _sf[sfParamName] += addition;
+        console.log (sfParamName + " " + _sf[sfParamName]);
+
+        _gui.paramsTemplate ({
+          'm': _sf.m,
+          'n1': _sf.n1,
+          'n2': _sf.n2,
+          'n3': _sf.n3
+        });
+      });
+      _gui.appendChild (element);
+
+      return function (data) {
+        element.innerHTML = template (data);
+      };
+    }) ();
+
+    _gui.paramsTemplate ({
+      'm': _sf.m,
+      'n1': _sf.n1,
+      'n2': _sf.n2,
+      'n3': _sf.n3
+    });
   }
 
   GameClass.prototype.onupdate = function (dt) {

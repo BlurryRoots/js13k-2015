@@ -4,7 +4,7 @@ function inlineScriptAndCss (app, css, outfile) {
   var fs = require ('fs');
   var hbs = require ('handlebars');
 
-  var source = fs.readFileSync ('src/index.html').toString ();
+  var source = fs.readFileSync ('src/index.hbs').toString ();
   var template = hbs.compile (source);
 
   var data = {

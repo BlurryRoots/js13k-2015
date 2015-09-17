@@ -1,7 +1,8 @@
 # editorconfig.org
 root = true
 
-[**.json]
+[src/**.hbs]
+[src/**.json]
 [src/**.js]
 indent_style = space
 indent_size = 2

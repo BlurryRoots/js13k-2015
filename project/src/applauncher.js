@@ -3,6 +3,7 @@
 */
 module.exports = (function () {
   // inspired by ooflorent at https://github.com/ooflorent/js13k-boilerplate
+  var Util = require ('./util');
 
   // Holds last iteration timestamp.
   var _time;
@@ -81,14 +82,33 @@ module.exports = (function () {
   }
 
   function _register (element, game, handlerName) {
-    if (_hasHandler (game, handlerName)) {
-      console.log ('registering ' + handlerName);
-      // fix element attached to window
-      element[handlerName] = function (e) {
-        var handler = game[handlerName];
-        e = e || window.event;
-        handler (e);
-      };
+    if (Util.hasHandler (game, handlerName)) {
+      Util.registerEventHandler (element, handlerName, game[handlerName]);
+    }
+  }
+
+  function _registerLocalStorage (element, game) {
+    if (Util.supportsLocalStorage ()) {
+      if (Util.hasHandler (game, 'onstorage')) {
+        var handler = game['onstorage'];
+        Util.registerEventHandler (element, 'storage', function (e) {
+          /*
+            e.key string  the named key that was added, removed, or modified
+            e.oldValue  any the previous value (now overwritten), or null if a new item was added
+            e.newValue  any the new value, or null if an item was removed
+            e.url*  string  the page which called a method that triggered this change
+            * Note: the url property was originally called uri.
+              Some browsers shipped with that property before the specification changed.
+              For maximum compatibility, you should check whether the url property exists,
+              and if not, check for the uri property instead.
+          */
+          e.url = e.url || u.uri;
+          handler (e);
+        });
+      }
+    }
+    else {
+      throw new Error ('You do not support local storage?! C\'mon!');
     }
   }
 
@@ -144,6 +164,7 @@ module.exports = (function () {
   AppLauncher.prototype.start = function (game) {
     _registerMouseHandlers (_ctx.canvas, game);
     _registerKeyHandlers (document, game);
+    /*_registerLocalStorage (window, game);*/
 
     /*document.body.onresize = function (e) {
       _ctx.canvas.width = _ctx.canvas.clientWidth;

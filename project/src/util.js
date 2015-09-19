@@ -37,19 +37,38 @@ module.exports = (function () {
     return new Vector2 (x, y);
   };
 
+  Util.supportsLocalStorage = function () {
+    // inspired by http://diveintohtml5.info/storage.html
+    try {
+      return 'localStorage' in window && window['localStorage'] !== null;
+    }
+    catch (e) {
+      return false;
+    }
+  };
+
   Util.hasHandler = function (obj, handlerName) {
     return 'function' === typeof obj[handlerName];
-  }
+  };
 
   Util.registerEventHandler = function (element, handlerName, handler) {
     console.log ('registering ' + handlerName);
     // fix element attached to window
-    element[handlerName] = function (e) {
+    var fixedEvent = function (e) {
       e = e || window.event;
       var callback = handler;
       callback (e);
     };
-  }
+
+    element[handlerName] = fixedEvent;
+
+    // TODO: why is this not working?
+    /*if (element.addEventListener) {
+      element.addEventListener (handlerName, fixedEvent, false);
+    } else {
+      element.attachEvent (handlerName, fixedEvent);
+    };*/
+  };
 
   Util.typeof = function (obj) {
     // taken from php.js' get_class
@@ -103,7 +122,7 @@ module.exports = (function () {
     }
 
     return undefined;
-  }
+  };
 
   return Util;
 

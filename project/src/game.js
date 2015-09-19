@@ -34,27 +34,29 @@ module.exports = (function () {
     ctx.fillStyle = fillStyleBuffer;
   }
 
-  function _drawSuperformularParamters (sf) {
+  _storage = {};
+  _storage.clear = function () {
+    window.localStorage.clear ();
+  };
+  _storage.onstorage = function (e) {
+    // dummy
+  };
+  _storage.put = function (key, value) {
+    var oldValue = window.localStorage.getItem (key);
+    window.localStorage.setItem (key, value);
 
-  }
-
-  function supportsLocalStorage () {
-    try {
-      return 'localStorage' in window && window['localStorage'] !== null;
-    }
-    catch (e) {
-      return false;
-    }
-  }
+    this.onstorage ({
+      key: key,
+      oldValue: oldValue,
+      newValue: value,
+      url: window.location
+    });
+  };
 
   function GameClass (canvas) {
     _canvas = canvas;
     _rand = new Randomizer ();
     _zoom = 100;
-
-    if (! supportsLocalStorage ()) {
-      throw new Error ('You do not support local storage?! C\'mon!');
-    }
 
     var m = _rand.range ()
     _sf = new Superformular (
@@ -64,12 +66,18 @@ module.exports = (function () {
       _rand.rangef (0.1, 100)
     );
 
+    _storage.clear ();
+    _storage.onstorage = this.onstorage;
+
     _gui = document.getElementById ("gui");
     _gui.paramsTemplate = (function () {
       var source = fs.readFileSync (__dirname + '/superformular.hbs', 'utf8');
       var template = Handlebars.compile (source);
+
       var element = document.createElement ('div');
       element.setAttribute ('id', 'paramsTemplate');
+      _gui.appendChild (element);
+
       Util.registerEventHandler (element, 'onmousedown', function (e) {
         var sfParamName = e.target.parentNode.children[0].textContent;
         console.log ('button: ' + e.button);
@@ -81,19 +89,9 @@ module.exports = (function () {
           addition = -1;
         }
 
-        console.log (sfParamName + " " + _sf[sfParamName]);
-        console.log ('addition: ' + addition);
         _sf[sfParamName] += addition;
-        console.log (sfParamName + " " + _sf[sfParamName]);
-
-        _gui.paramsTemplate ({
-          'm': _sf.m,
-          'n1': _sf.n1,
-          'n2': _sf.n2,
-          'n3': _sf.n3
-        });
+        _storage.put (sfParamName, _sf[sfParamName]);
       });
-      _gui.appendChild (element);
 
       return function (data) {
         element.innerHTML = template (data);
@@ -133,6 +131,20 @@ module.exports = (function () {
     console.log (e);
     _zoom += 10 * e.wheelValue
   }
+
+  GameClass.prototype.onstorage = function (e) {
+    if ('m' == e.key
+     || 'n1' == e.key
+     || 'n2' == e.key
+     || 'n3' == e.key) {
+      _gui.paramsTemplate ({
+        'm': _sf.m,
+        'n1': _sf.n1,
+        'n2': _sf.n2,
+        'n3': _sf.n3
+      });
+    }
+  };
 
   return GameClass;
 

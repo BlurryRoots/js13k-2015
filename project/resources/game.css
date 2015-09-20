@@ -10,6 +10,8 @@ body {
   overflow: hidden;
 
   z-index: 0;
+
+  font-family: sans-serif;
 }
 
 #game {

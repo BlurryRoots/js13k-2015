@@ -51,6 +51,11 @@ module.exports = (function () {
       newValue: value,
       url: window.location
     });
+
+    return oldValue;
+  };
+  _storage.get = function (key) {
+    return window.localStorage.getItem (key);
   };
 
   function GameClass (canvas) {
@@ -110,18 +115,10 @@ module.exports = (function () {
         }
       }
 
-      Util.registerEventHandler (paramFields['m'], 'oninput', function (e) {
-        onValueChanged (e);
-      });
-      Util.registerEventHandler (paramFields['n1'], 'oninput', function (e) {
-        onValueChanged (e);
-      });
-      Util.registerEventHandler (paramFields['n2'], 'oninput', function (e) {
-        onValueChanged (e);
-      });
-      Util.registerEventHandler (paramFields['n3'], 'oninput', function (e) {
-        onValueChanged (e);
-      });
+      Util.registerEventHandler (paramFields['m'], 'oninput', onValueChanged);
+      Util.registerEventHandler (paramFields['n1'], 'oninput', onValueChanged);
+      Util.registerEventHandler (paramFields['n2'], 'oninput', onValueChanged);
+      Util.registerEventHandler (paramFields['n3'], 'oninput', onValueChanged);
 
       return function (data) {
         element.innerHTML = template (data);
@@ -133,13 +130,20 @@ module.exports = (function () {
     _vertices = _sf.calculate_vertices ();
   };
 
+  _clearColor = new Color (255, 255, 255);
   GameClass.prototype.onrender = function (ctx) {
-    ctx.clearRect (0, 0, ctx.canvas.width, ctx.canvas.height);
+    // clears with white color
+    //ctx.clearRect (0, 0, ctx.canvas.width, ctx.canvas.height);
+    // clear canvas with custom color
+    var fillStyleBuffer = ctx.fillStyle;
+    ctx.fillStyle = _clearColor.toHex ();
+    ctx.fillRect (0, 0, ctx.canvas.width, ctx.canvas.height);
+    ctx.fillStyle = fillStyleBuffer;
 
-    if (_clickPos) {
+    /*if (_clickPos) {
       var p = Util.clientToCanvasPosition (_canvas, _clickPos);
       ctx.fillText (_text, p.x, p.y);
-    }
+    }*/
 
     _drawsf (ctx, _vertices, _fillColor, _zoom);
   };
@@ -156,17 +160,7 @@ module.exports = (function () {
   }
 
   GameClass.prototype.onstorage = function (e) {
-    /*if ('m' == e.key
-     || 'n1' == e.key
-     || 'n2' == e.key
-     || 'n3' == e.key) {
-      _gui.paramsTemplate ({
-        'm': _sf.m,
-        'n1': _sf.n1,
-        'n2': _sf.n2,
-        'n3': _sf.n3
-      });
-    }*/
+    //
   };
 
   return GameClass;

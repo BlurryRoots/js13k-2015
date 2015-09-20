@@ -63,44 +63,37 @@ module.exports = (function () {
     _rand = new Randomizer ();
     _zoom = 100;
 
-    var m = _rand.range (1, 100);
-    var n1 = _rand.range (1, 100);
-    var n2 = _rand.range (1, 100);
-    var n3 = _rand.range (1, 100);
-    /*var g = (1 + Math.sqrt (5)) / 2;
-    var m  = 1;
-    var x = 100;
-    var n1 = x * g;
-    var n2 = x * g;
-    var n3 = x * g;*/
-    _sf = new Superformular (m, n1, n2, n3);
-
     _storage.clear ();
     _storage.onstorage = this.onstorage;
 
+    _sf = new Superformular (1, 1, 1, 1);
+
+    // start building the gui from template
     _gui = document.getElementById ("gui");
+
+    //
+    var source = fs.readFileSync (__dirname + '/superformular.hbs', 'utf8');
+    var template = Handlebars.compile (source);
+
+    // create actual element from template
+    var element = document.createElement ('div');
+    element.setAttribute ('id', 'paramsTemplate');
+    element.innerHTML = template ({
+      'm': _sf.m,
+      'n1': _sf.n1,
+      'n2': _sf.n2,
+      'n3': _sf.n3
+    });
+    _gui.appendChild (element);
+
+    var paramFields = {
+      m: document.getElementById ('m'),
+      n1: document.getElementById ('n1'),
+      n2: document.getElementById ('n2'),
+      n3: document.getElementById ('n3'),
+    };
+
     _gui.paramsTemplate = (function () {
-      var source = fs.readFileSync (__dirname + '/superformular.hbs', 'utf8');
-      var template = Handlebars.compile (source);
-
-      // create actual element from template
-      var element = document.createElement ('div');
-      element.setAttribute ('id', 'paramsTemplate');
-      element.innerHTML = template ({
-        'm': _sf.m,
-        'n1': _sf.n1,
-        'n2': _sf.n2,
-        'n3': _sf.n3
-      });
-      _gui.appendChild (element);
-
-      var paramFields = {
-        m: document.getElementById ('m'),
-        n1: document.getElementById ('n1'),
-        n2: document.getElementById ('n2'),
-        n3: document.getElementById ('n3'),
-      };
-
       function onValueChanged (e) {
         var paramName = e.target.id;
         var value = paramFields[paramName].value;
@@ -121,9 +114,31 @@ module.exports = (function () {
       Util.registerEventHandler (paramFields['n3'], 'oninput', onValueChanged);
 
       return function (data) {
-        element.innerHTML = template (data);
+        paramFields['m'].value = data['m'];
+        paramFields['n1'].value = data['n1'];
+        paramFields['n2'].value = data['n2'];
+        paramFields['n3'].value = data['n3'];
       };
     }) ();
+
+
+    function rerollSuperformularParamter () {
+      return {
+        m: _rand.range (1, 23),
+        n1: _rand.range (1, 23),
+        n2: _rand.range (1, 23),
+        n3: _rand.range (1, 23),
+      }
+    }
+    var button = document.getElementById ('reroll');
+    Util.registerEventHandler (button, 'onclick', function (e) {
+      var params = rerollSuperformularParamter ();
+      _sf.m = params.m;
+      _sf.n1 = params.n1;
+      _sf.n2 = params.n2;
+      _sf.n3 = params.n3;
+      _gui.paramsTemplate (params);
+    });
   }
 
   GameClass.prototype.onupdate = function (dt) {

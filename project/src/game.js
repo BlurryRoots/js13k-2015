@@ -58,13 +58,17 @@ module.exports = (function () {
     _rand = new Randomizer ();
     _zoom = 100;
 
-    var m = _rand.range ()
-    _sf = new Superformular (
-      _rand.range (1, 100),
-      _rand.rangef (0.1, 100),
-      _rand.rangef (0.1, 100),
-      _rand.rangef (0.1, 100)
-    );
+    var m = _rand.range (1, 100);
+    var n1 = _rand.range (1, 100);
+    var n2 = _rand.range (1, 100);
+    var n3 = _rand.range (1, 100);
+    /*var g = (1 + Math.sqrt (5)) / 2;
+    var m  = 1;
+    var x = 100;
+    var n1 = x * g;
+    var n2 = x * g;
+    var n3 = x * g;*/
+    _sf = new Superformular (m, n1, n2, n3);
 
     _storage.clear ();
     _storage.onstorage = this.onstorage;
@@ -74,36 +78,55 @@ module.exports = (function () {
       var source = fs.readFileSync (__dirname + '/superformular.hbs', 'utf8');
       var template = Handlebars.compile (source);
 
+      // create actual element from template
       var element = document.createElement ('div');
       element.setAttribute ('id', 'paramsTemplate');
+      element.innerHTML = template ({
+        'm': _sf.m,
+        'n1': _sf.n1,
+        'n2': _sf.n2,
+        'n3': _sf.n3
+      });
       _gui.appendChild (element);
 
-      Util.registerEventHandler (element, 'onmousedown', function (e) {
-        var sfParamName = e.target.parentNode.children[0].textContent;
-        console.log ('button: ' + e.button);
-        var addition = 0;
-        if (0 == e.button) {
-          addition = 1;
-        }
-        else if (1 == e.button) {
-          addition = -1;
-        }
+      var paramFields = {
+        m: document.getElementById ('m'),
+        n1: document.getElementById ('n1'),
+        n2: document.getElementById ('n2'),
+        n3: document.getElementById ('n3'),
+      };
 
-        _sf[sfParamName] += addition;
-        _storage.put (sfParamName, _sf[sfParamName]);
+      function onValueChanged (e) {
+        var paramName = e.target.id;
+        var value = paramFields[paramName].value;
+        console.log ('paramName: ' + paramName);
+        console.log ('value: ' + value);
+        if (undefined !== value) {
+          _sf[paramName] = Math.floor (value);
+          _storage.put (paramName, _sf[paramName]);
+        }
+        else {
+          console.log (e);
+        }
+      }
+
+      Util.registerEventHandler (paramFields['m'], 'oninput', function (e) {
+        onValueChanged (e);
+      });
+      Util.registerEventHandler (paramFields['n1'], 'oninput', function (e) {
+        onValueChanged (e);
+      });
+      Util.registerEventHandler (paramFields['n2'], 'oninput', function (e) {
+        onValueChanged (e);
+      });
+      Util.registerEventHandler (paramFields['n3'], 'oninput', function (e) {
+        onValueChanged (e);
       });
 
       return function (data) {
         element.innerHTML = template (data);
       };
     }) ();
-
-    _gui.paramsTemplate ({
-      'm': _sf.m,
-      'n1': _sf.n1,
-      'n2': _sf.n2,
-      'n3': _sf.n3
-    });
   }
 
   GameClass.prototype.onupdate = function (dt) {
@@ -133,7 +156,7 @@ module.exports = (function () {
   }
 
   GameClass.prototype.onstorage = function (e) {
-    if ('m' == e.key
+    /*if ('m' == e.key
      || 'n1' == e.key
      || 'n2' == e.key
      || 'n3' == e.key) {
@@ -143,7 +166,7 @@ module.exports = (function () {
         'n2': _sf.n2,
         'n3': _sf.n3
       });
-    }
+    }*/
   };
 
   return GameClass;

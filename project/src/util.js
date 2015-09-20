@@ -15,9 +15,17 @@ module.exports = (function () {
     return (rad / (2 * Math.PI)) * 360;
   };
 
+  Util.roundSig = function (num, sig) {
+    sig = sig || 2;
+    var posExp = "e+" + sig.toString ();
+    var negExp = "e-" + sig.toString ();
+    return +(Math.round (num + posExp) + negExp);
+  }
+
   Util.roundToTwo = function (num) {
     // THIS IS SUCH A MESSY HACK!
-    return +(Math.round (num + "e+2") + "e-2");
+    //return +(Math.round (num + "e+2") + "e-2");
+    Util.roundSig (num, 2);
   };
 
   Util.fontHeight = function (canvasContext) {

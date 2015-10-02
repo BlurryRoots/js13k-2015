@@ -1,5 +1,6 @@
 module.exports = (function () {
 
+  // Import modules
   var Util = require ('./util');
   var Vector2 = require ('./vector2');
   var Superformular = require ('./superformular');
@@ -8,6 +9,7 @@ module.exports = (function () {
   var Handlebars = require ('handlebars');
   var fs = require ('fs');
 
+  // Private variables
   var _text = 'what the shit?';
   var _clickPos;
   var _rand;
@@ -16,6 +18,35 @@ module.exports = (function () {
   var _zoom = 1;
   var _fillColor = new Color (32, 64, 128);
   var _gui;
+  var _storage = {};
+
+  /* TODO: this should go into a module! */
+  _storage.clear = function () {
+    window.localStorage.clear ();
+  };
+
+  _storage.onstorage = function (e) {
+    // dummy
+  };
+
+  _storage.put = function (key, value) {
+    var oldValue = window.localStorage.getItem (key);
+    window.localStorage.setItem (key, value);
+
+    this.onstorage ({
+      key: key,
+      oldValue: oldValue,
+      newValue: value,
+      url: window.location
+    });
+
+    return oldValue;
+  };
+
+  _storage.get = function (key) {
+    return window.localStorage.getItem (key);
+  };
+  /* TODO: this should go into a module! */
 
   function _drawsf (ctx, shape, color, zoom) {
     ctx.save ();
@@ -34,31 +65,7 @@ module.exports = (function () {
     ctx.fillStyle = fillStyleBuffer;
   }
 
-  _storage = {};
-  _storage.clear = function () {
-    window.localStorage.clear ();
-  };
-  _storage.onstorage = function (e) {
-    // dummy
-  };
-  _storage.put = function (key, value) {
-    var oldValue = window.localStorage.getItem (key);
-    window.localStorage.setItem (key, value);
-
-    this.onstorage ({
-      key: key,
-      oldValue: oldValue,
-      newValue: value,
-      url: window.location
-    });
-
-    return oldValue;
-  };
-  _storage.get = function (key) {
-    return window.localStorage.getItem (key);
-  };
-
-  function GameClass (canvas) {
+  function Game (canvas) {
     _canvas = canvas;
     _rand = new Randomizer ();
     _zoom = 100;
@@ -141,12 +148,12 @@ module.exports = (function () {
     });
   }
 
-  GameClass.prototype.onupdate = function (dt) {
-    _vertices = _sf.calculate_vertices ();
+  Game.prototype.onupdate = function (dt) {
+    _vertices = _sf.calculateVertices ();
   };
 
   _clearColor = new Color (255, 255, 255);
-  GameClass.prototype.onrender = function (ctx) {
+  Game.prototype.onrender = function (ctx) {
     // clears with white color
     //ctx.clearRect (0, 0, ctx.canvas.width, ctx.canvas.height);
     // clear canvas with custom color
@@ -163,21 +170,21 @@ module.exports = (function () {
     _drawsf (ctx, _vertices, _fillColor, _zoom);
   };
 
-  GameClass.prototype.onmousedown = function (e) {
+  Game.prototype.onmousedown = function (e) {
     console.log (e);
 
     _clickPos = new Vector2 (e.clientX, e.clientY);
   };
 
-  GameClass.prototype.onmousewheel = function (e) {
+  Game.prototype.onmousewheel = function (e) {
     console.log (e);
     _zoom += 10 * e.wheelValue
   }
 
-  GameClass.prototype.onstorage = function (e) {
+  Game.prototype.onstorage = function (e) {
     //
   };
 
-  return GameClass;
+  return Game;
 
 }) ();

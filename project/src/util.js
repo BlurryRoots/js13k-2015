@@ -1,20 +1,67 @@
+/**
+* @module Util
+*/
 module.exports = (function () {
 
+  // Import vector module
   var Vector2 = require ('./vector2');
+
+  /**
+  * Does a linear interpolation.
+  *
+  * @class Util
+  *
+  */
   var Util = {}
 
+  /**
+  * Does a linear interpolation.
+  *
+  * @method linearInterpolation
+  * @param {float} from Value to start interpolating from.
+  * @param {float} to Value to interpolate towards.
+  * @param {float} currentTime Current time.
+  * @param {float} interval Interpolation interval.
+  * @return {float} Interpolated value.
+  *
+  */
   Util.linearInterpolation = function (from, to, currentTime, intervalLength) {
     return ((to - from) * (currentTime / intervalLength)) + from;
   };
 
+  /**
+  * Converts degrees to radians.
+  *
+  * @method degToRad
+  * @param {float} deg Angle in degrees.
+  * @return {float} Angle in radians.
+  *
+  */
   Util.degToRad = function (deg) {
     return (deg / 360) * (2 * Math.PI);
   };
 
+  /**
+  * Converts radians to degrees.
+  *
+  * @method radToDeg
+  * @param {float} rad Angle in radians.
+  * @return {float} Angle in degrees.
+  *
+  */
   Util.radToDeg = function (rad) {
     return (rad / (2 * Math.PI)) * 360;
   };
 
+  /**
+  * Rounds number to a number of significant digits.
+  *
+  * @method roundSig
+  * @param {float} num Value to round.
+  * @param {float} sig Precision.
+  * @return {float} Rounded value.
+  *
+  */
   Util.roundSig = function (num, sig) {
     sig = sig || 2;
     var posExp = "e+" + sig.toString ();
@@ -22,17 +69,44 @@ module.exports = (function () {
     return +(Math.round (num + posExp) + negExp);
   }
 
+  /**
+  * Rounds number to two significant digits.
+  *
+  * @method roundToTwo
+  * @param {float} num Value to round.
+  * @return {float} Rounded value.
+  *
+  */
   Util.roundToTwo = function (num) {
     // THIS IS SUCH A MESSY HACK!
     //return +(Math.round (num + "e+2") + "e-2");
     Util.roundSig (num, 2);
   };
 
-  Util.fontHeight = function (canvasContext) {
+  /**
+  * Tries to calculate the height of a character of the current font.
+  * (only really works when font is given in pixels!)
+  *
+  * @method fontHeight
+  * @param {Object} ctx Canvas object.
+  * @return {int} Height in pixels.
+  *
+  */
+  Util.fontHeight = function (ctx) {
     // good enough i guess (only really works when font is given in pixels!)
-    return parseInt (canvasContext.font);
+    return parseInt (ctx.font);
   };
 
+  /**
+  * Translates a client position (e.g. mouse over canvas) to the position
+  * inside canvas space.
+  *
+  * @method clientToCanvasPosition
+  * @param {Object} canvas Canvas object.
+  * @param {Vector2} clientPosition Client position.
+  * @return {Vector2} Position in canvas space.
+  *
+  */
   Util.clientToCanvasPosition = function (canvas, clientPosition) {
     var scale = new Vector2 (
       canvas.width / canvas.clientWidth,
@@ -45,6 +119,13 @@ module.exports = (function () {
     return new Vector2 (x, y);
   };
 
+  /**
+  * Checks whether browser supports local storage.
+  *
+  * @method supportsLocalStorage
+  * @return {bool} True if local storage is supported.
+  *
+  */
   Util.supportsLocalStorage = function () {
     // inspired by http://diveintohtml5.info/storage.html
     try {
@@ -55,10 +136,28 @@ module.exports = (function () {
     }
   };
 
+  /**
+  * Checks if given object has handle with given name.
+  *
+  * @method hasHandler
+  * @param {Object} obj Object to check.
+  * @param {String} handlerName Handler name.
+  * @return {bool} True if object has handler.
+  *
+  */
   Util.hasHandler = function (obj, handlerName) {
     return 'function' === typeof obj[handlerName];
   };
 
+  /**
+  * Registers function as handler on element.
+  *
+  * @method registerEventHandler
+  * @param {Object} element Object to attach handler to.
+  * @param {String} handlerName Handler name.
+  * @param {Function} handler Handler function.
+  *
+  */
   Util.registerEventHandler = function (element, handlerName, handler) {
     console.log ('registering ' + handlerName);
     // fix element attached to window
@@ -78,6 +177,15 @@ module.exports = (function () {
     };*/
   };
 
+  /**
+  * Best effort to figure out the type of given object.
+  * Returns undefined if object is not a 'class'.
+  *
+  * @method typeof
+  * @param {Object} obj Value to check
+  * @return {String} Type name.
+  *
+  */
   Util.typeof = function (obj) {
     // taken from php.js' get_class
     /*

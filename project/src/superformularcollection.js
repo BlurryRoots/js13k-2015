@@ -1,8 +1,14 @@
+/**
+* @module SuperformularCollection
+*/
 module.exports = (function () {
+
+  // Import modules
   var Util = require ('./util');
   var Color = require ('./color');
   var Vector2 = require ('./vector2');
 
+  // Private variables
   var _collection = [];
   var _currentFormularIndex = 0;
   var _elapsedTime = 0;
@@ -12,23 +18,56 @@ module.exports = (function () {
   var _zoom = 150;
   var _transitionTime = 1;
 
-  var SuperformularCollectionClass = function (transitionTime) {
+  /**
+   * Creates a new Color
+   *
+   * @class SuperformularCollection
+   * @constructor
+   * @param {float} transitionTime Time between each transition
+   *
+   */
+  function SuperformularCollection (transitionTime) {
+    transitionTime = transitionTime || _transitionTime;
+
     _transitionTime = transitionTime;
   }
 
-  SuperformularCollectionClass.prototype.add = function (formular, color) {
+  /**
+   * Adds new formular to collection.
+   *
+   * @method add
+   * @param {Superformular} formular Superformular.
+   * @param {Color} color Color used to fill this superformular.
+   *
+   */
+  SuperformularCollection.prototype.add = function (formular, color) {
     _collection.push ({
       formular: formular,
       color: color,
     });
   };
-  SuperformularCollectionClass.prototype.each = function (callback) {
+
+  /**
+   * Iterates each formular in the collection.
+   *
+   * @method each
+   * @param {Function} callback Callback used each iteration step.
+   *
+   */
+  SuperformularCollection.prototype.each = function (callback) {
     _collection.forEach (function (v) {
       callback (v.formular, v.color);
     });
   };
 
-  SuperformularCollectionClass.prototype.update = function (dt) {
+  /**
+   * Updates this collections state.
+   *
+   * @method update
+   * @param {float} dt Time between this and last update.
+   *
+   */
+  SuperformularCollection.prototype.update = function (dt) {
     _elapsedTime += dt;
 
     if (_elapsedTime > _transitionTime) {
@@ -58,8 +97,8 @@ module.exports = (function () {
       // move point 2 shapePointDistance from point 1d
       // can i cut the center of the shape? or do i have to
       // get a 'bend' shape by connecting the end points ?
-      var point1 = sf1.calculate_point (radians, 1);
-      var point2 = sf2.calculate_point (radians, 1);
+      var point1 = sf1.calculatePoint (radians, 1);
+      var point2 = sf2.calculatePoint (radians, 1);
 
       var x = Util.linearInterpolation (
         point1.x, point2.x, _elapsedTime, _transitionTime
@@ -76,7 +115,14 @@ module.exports = (function () {
     _fillColor = sf1color.interpolate (sf2color, _elapsedTime, _transitionTime);
   };
 
-  SuperformularCollectionClass.prototype.draw = function (ctx) {
+  /**
+   * Draws this collection to given canvas.
+   *
+   * @method draw
+   * @param {Object} ctx Canvas context.
+   *
+   */
+  SuperformularCollection.prototype.draw = function (ctx) {
     ctx.save ();
     ctx.translate (ctx.canvas.width / 2, ctx.canvas.height / 2);
     ctx.scale (_zoom, _zoom);
@@ -93,6 +139,6 @@ module.exports = (function () {
     ctx.fillStyle = fillStyleBuffer;
   };
 
-  return SuperformularCollectionClass;
+  return SuperformularCollection;
 
 }) ();

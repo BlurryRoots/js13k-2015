@@ -41,6 +41,8 @@ build-release: setup
 	$(uglifyjs_cmd) -m -c -o build/app.compressed.js build/app.js
 	node compile-index.js --release
 	$(minify_cmd) build/index.html > build/index.min.html
+
+size-limit:
 	@echo "scale=2; `stat -c %s build/index.min.html` / 13000.0  * 100.0" | bc
 
 run-release:

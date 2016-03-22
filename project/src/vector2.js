@@ -118,7 +118,8 @@ module.exports = (function () {
    */
   Vector2.prototype.angle = function (other) {
     var magprod = this.magnitude () * other.magnitude ();
-    return Math.acos (this.dot (b) / magprod);
+
+    return Math.acos (this.dot (other) / magprod);
   }
 
   /**

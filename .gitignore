@@ -2,3 +2,4 @@ node_modules/
 build/
 doc/
 js13k.sublime-workspace
+npm-debug.log

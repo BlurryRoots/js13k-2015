@@ -1,7 +1,7 @@
 
 browserify_cmd="node_modules/browserify/bin/cmd.js"
 handlebars_cmd="node_modules/handlebars/bin/handlebars"
-uglifyjs_cmd="node_modules/uglifyjs/bin/uglifyjs"
+uglifyjs_cmd="node_modules/uglify-js/bin/uglifyjs"
 minify_cmd="node_modules/minify/bin/minify.js"
 yuidocjs_cmd="node_modules/yuidocjs/lib/./cli.js"
 
